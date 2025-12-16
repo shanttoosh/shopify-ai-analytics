@@ -256,18 +256,6 @@ Services will be available:
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed system architecture, data flow diagrams, and agent workflow visualizations.
 
-## Assignment Notes
-
-This project was built for an AI-powered analytics interview assignment evaluating:
-- ✅ System design & API architecture
-- ✅ Node.js API design (adapted from Rails requirement)
-- ✅ Python + LLM orchestration
-- ✅ Agentic workflows
-- ✅ Shopify API understanding
-- ✅ Practical problem-solving
-
-**Time Investment**: ~48 hours
-
 ## License
 
 MIT License - Built for educational/interview purposes
