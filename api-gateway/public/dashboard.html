@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Analytics - Metrics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .stat-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .queries-section,
+        .sessions-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .query-item,
+        .session-item {
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .query-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .query-meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+
+        .badge-info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .query-input-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .ask-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .ask-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-response {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+        }
+
+        .ai-response h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .answer-text {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1> Shopify Analytics Dashboard</h1>
+            <p class="subtitle">Real-time metrics and insights</p>
+        </header>
+
+        <!-- Interactive Query Section -->
+        <div class="query-input-section">
+            <h2>💬 Ask a Question</h2>
+            <div class="input-group">
+                <input type="text" id="store-input" placeholder="Store ID" value="test-store.myshopify.com">
+                <textarea id="question-input"
+                    placeholder="What would you like to know? (e.g., What are my top selling products?)"
+                    rows="2"></textarea>
+                <button class="ask-btn" onclick="askQuestion()">🚀 Ask AI</button>
+            </div>
+            <div id="loading-indicator" class="loading" style="display: none;">🤔 AI is thinking...</div>
+            <div id="ai-response" class="ai-response" style="display: none;">
+                <h3>Answer:</h3>
+                <div id="answer-text" class="answer-text"></div>
+                <div id="answer-meta" class="answer-meta"></div>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Queries</div>
+                <div class="stat-value" id="total-queries">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Sessions</div>
+                <div class="stat-value" id="active-sessions">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cache Entries</div>
+                <div class="stat-value" id="cache-size">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Last 24h</div>
+                <div class="stat-value" id="queries-24h">-</div>
+            </div>
+        </div>
+
+        <div class="queries-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2> Recent Queries</h2>
+                <button class="refresh-btn" onclick="loadMetrics()">🔄 Refresh</button>
+            </div>
+            <div id="queries-list" class="loading">Loading...</div>
+        </div>
+
+        <div class="sessions-section">
+            <h2>💬 Active Conversations</h2>
+            <div id="sessions-list" class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null; // Track conversation session
+
+        async function askQuestion() {
+            const storeId = document.getElementById('store-input').value.trim();
+            const question = document.getElementById('question-input').value.trim();
+
+            if (!storeId || !question) {
+                alert('Please enter both store ID and question');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading-indicator').style.display = 'block';
+            document.getElementById('ai-response').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/v1/questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        store_id: storeId,
+                        question: question,
+                        session_id: sessionId  // Use existing session for context
+                    })
+                });
+
+                const data = await response.json();
+
+                // Save session ID for follow-up questions
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                }
+
+                // Display answer
+                document.getElementById('answer-text').textContent = data.answer;
+                document.getElementById('answer-meta').innerHTML = `
+                    <span class="badge badge-${data.confidence === 'high' ? 'success' : 'info'}">${data.confidence} confidence</span>
+                    <span class="badge badge-info">${data.metadata.execution_time}</span>
+                    ${data.metadata.conversation_turns ? `<span class="badge badge-success">${data.metadata.conversation_turns} turns</span>` : ''}
+                `;
+
+                document.getElementById('ai-response').style.display = 'block';
+                document.getElementById('loading-indicator').style.display = 'none';
+
+                // Clear question input for next question
+                document.getElementById('question-input').value = '';
+
+                // Refresh metrics
+                loadMetrics();
+
+            } catch (error) {
+                console.error('Error asking question:', error);
+                document.getElementById('loading-indicator').style.display = 'none';
+                alert('Error processing your question. Please try again.');
+            }
+        }
+
+        // Allow Enter key in textarea (Shift+Enter for new line)
+        document.addEventListener('DOMContentLoaded', () => {
+            const questionInput = document.getElementById('question-input');
+            questionInput?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    askQuestion();
+                }
+            });
+        });
+
+        async function loadMetrics() {
+            try {
+                const response = await fetch('/metrics/dashboard');
+                const data = await response.json();
+
+                // Update stats
+                document.getElementById('total-queries').textContent = data.overview.totalQueries;
+                document.getElementById('active-sessions').textContent = data.overview.activeSessions;
+                document.getElementById('cache-size').textContent = data.overview.cacheSize;
+
+                // Get 24h stats
+                const statsResponse = await fetch('/metrics/stats');
+                const stats = await statsResponse.json();
+                document.getElementById('queries-24h').textContent = stats.queries.last24h || 0;
+
+                // Render recent queries
+                const queriesList = document.getElementById('queries-list');
+                if (data.recentQueries && data.recentQueries.length > 0) {
+                    queriesList.innerHTML = data.recentQueries.map(q => `
+                        <div class="query-item">
+                            <div class="query-question">${q.question}</div>
+                            <div class="query-meta">
+                                <span class="badge badge-info">${q.storeId}</span>
+                                <span class="badge badge-success">${q.responseTime || 'N/A'}</span>
+                                <span>${new Date(q.timestamp).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    queriesList.innerHTML = '<p class="loading">No queries yet</p>';
+                }
+
+                // Render active sessions
+                const sessionsList = document.getElementById('sessions-list');
+                if (data.sessions && data.sessions.length > 0) {
+                    sessionsList.innerHTML = data.sessions.map(s => `
+                        <div class="session-item">
+                            <div class="query-question">Session: ${s.sessionId.substring(0, 8)}...</div>
+                            <div class="query-meta">
+                                <span class="badge badge-info">${s.interactions} interactions</span>
+                                <span>Last active: ${new Date(s.lastActivity).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    sessionsList.innerHTML = '<p class="loading">No active sessions</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+                document.getElementById('queries-list').innerHTML = '<p class="loading">Error loading data</p>';
+            }
+        }
+
+        // Load metrics on page load
+        loadMetrics();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadMetrics, 30000);
+    </script>
+</body>
+
+</html>
